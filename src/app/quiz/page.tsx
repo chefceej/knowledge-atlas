@@ -1,6 +1,30 @@
 import { AppShell } from "@/components/app-shell";
 import { QuizSession } from "@/components/quiz-session";
 import Link from "next/link";
+import { readGraph } from "@/lib/store";
+
+async function getQuizQuestions(domainId?: string, limit = 5) {
+  const graph = await readGraph();
+  let questions = [...graph.quizQuestions];
+
+  if (domainId) {
+    const domainNodeIds = new Set(
+      graph.nodes.filter((n) => n.domainId === domainId).map((n) => n.id),
+    );
+    questions = questions.filter((q) => domainNodeIds.has(q.nodeId));
+  }
+
+  questions.sort((a, b) => {
+    const nodeA = graph.nodes.find((n) => n.id === a.nodeId);
+    const nodeB = graph.nodes.find((n) => n.id === b.nodeId);
+    return (nodeA?.mastery ?? 0) - (nodeB?.mastery ?? 0);
+  });
+
+  return questions.slice(0, limit).map((q) => {
+    const node = graph.nodes.find((n) => n.id === q.nodeId);
+    return { ...q, nodeName: node?.name ?? "Unknown" };
+  });
+}
 
 export default async function QuizPage({
   searchParams,
@@ -9,6 +33,7 @@ export default async function QuizPage({
 }) {
   const params = await searchParams;
   const domainId = params.domain;
+  const initialQuestions = await getQuizQuestions(domainId);
 
   const filters = [
     { label: "All domains", href: "/quiz", active: !domainId },
@@ -46,7 +71,12 @@ export default async function QuizPage({
         ))}
       </div>
 
-      <QuizSession domainId={domainId} questionCount={5} />
+      <QuizSession
+        key={domainId ?? "all"}
+        domainId={domainId}
+        initialQuestions={initialQuestions}
+        questionCount={5}
+      />
     </AppShell>
   );
 }

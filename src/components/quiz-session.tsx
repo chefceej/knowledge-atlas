@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,41 +20,47 @@ interface QuizSessionProps {
   domainId?: string;
   categoryId?: string;
   questionCount?: number;
+  initialQuestions: QuizQuestionWithNode[];
 }
 
 export function QuizSession({
   domainId,
   categoryId,
   questionCount = 5,
+  initialQuestions,
 }: QuizSessionProps) {
-  const [questions, setQuestions] = useState<QuizQuestionWithNode[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [questions, setQuestions] = useState(initialQuestions);
+  const [loading, setLoading] = useState(false);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadQuestions = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams({ limit: String(questionCount) });
-    if (domainId) params.set("domain", domainId);
-    if (categoryId) params.set("category", categoryId);
+    setError(null);
+    try {
+      const params = new URLSearchParams({ limit: String(questionCount) });
+      if (domainId) params.set("domain", domainId);
+      if (categoryId) params.set("category", categoryId);
 
-    const res = await fetch(`/api/quiz?${params}`);
-    const data = await res.json();
-    setQuestions(data.questions ?? []);
-    setIndex(0);
-    setSelected(null);
-    setRevealed(false);
-    setScore(0);
-    setFinished(false);
-    setLoading(false);
+      const res = await fetch(`/api/quiz?${params}`);
+      if (!res.ok) throw new Error("Failed to load quiz");
+      const data = await res.json();
+      setQuestions(data.questions ?? []);
+      setIndex(0);
+      setSelected(null);
+      setRevealed(false);
+      setScore(0);
+      setFinished(false);
+    } catch {
+      setError("Could not load quiz questions. Try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [domainId, categoryId, questionCount]);
-
-  useEffect(() => {
-    loadQuestions();
-  }, [loadQuestions]);
 
   const current = questions[index];
 
@@ -86,6 +92,17 @@ export function QuizSession({
       <div className="flex items-center justify-center py-16 text-zinc-400">
         <Loader2 className="mr-2 size-5 animate-spin" />
         Loading quiz…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4 py-8 text-center">
+        <p className="text-red-400">{error}</p>
+        <Button onClick={loadQuestions} className="bg-emerald-600 hover:bg-emerald-500">
+          Retry
+        </Button>
       </div>
     );
   }
