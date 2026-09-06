@@ -37,3 +37,6 @@ next-env.d.ts
 
 # user knowledge graph data
 data/
+
+# agent tooling artifacts
+agent-tools/
