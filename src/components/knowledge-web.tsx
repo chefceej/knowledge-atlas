@@ -83,6 +83,10 @@ function WebSim({
     let frame = 0;
     let ticks = 0;
     const step = () => {
+      if (dragRef.current) {
+        frame = requestAnimationFrame(step);
+        return;
+      }
       setBodies((prev) => {
         if (prev.length === 0) return prev;
         const next = prev.map((b) => ({ ...b }));
@@ -90,7 +94,7 @@ function WebSim({
         return next;
       });
       ticks += 1;
-      if (ticks < 240) {
+      if (ticks < 90) {
         frame = requestAnimationFrame(step);
       }
     };
@@ -218,8 +222,10 @@ function WebSim({
       role="img"
       aria-label={slice.focus.label}
       onPointerMove={onPointerMove}
-      onPointerUp={() => onPointerUp()}
-      onPointerDown={(e) => onPointerDown(e)}
+      onPointerUp={() => {
+        const drag = dragRef.current;
+        if (drag?.mode === "pan") onPointerUp();
+      }}
     >
       <defs>
         <radialGradient id="web-glow" cx="50%" cy="45%" r="65%">
@@ -227,7 +233,12 @@ function WebSim({
           <stop offset="100%" stopColor="rgba(7,7,12,0)" />
         </radialGradient>
       </defs>
-      <rect width="100%" height="100%" fill="url(#web-glow)" />
+      <rect
+        width="100%"
+        height="100%"
+        fill="url(#web-glow)"
+        onPointerDown={(e) => onPointerDown(e)}
+      />
       <g transform={`translate(${pan.x} ${pan.y}) scale(${pan.k})`}>
         {slice.edges.map((edge) => (
           <EdgeLine key={edge.id} edge={edge} bodyMap={bodyMap} />
@@ -250,7 +261,17 @@ function WebSim({
                 e.stopPropagation();
                 onPointerUp(vertex);
               }}
+              onDoubleClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (clickTimer.current) {
+                  window.clearTimeout(clickTimer.current);
+                  clickTimer.current = null;
+                }
+                onEnter(vertex);
+              }}
             >
+              <circle r={body.r + 16} fill="transparent" />
               {selected || vertex.isFocus ? (
                 <circle
                   r={body.r + 10}

@@ -66,7 +66,7 @@ export function tickSimulation(
       const dist = Math.hypot(dx, dy) || 0.01;
       dx /= dist;
       dy /= dist;
-      const minDist = a.r + b.r + 36;
+      const minDist = a.r + b.r + 52;
       if (dist < minDist) {
         const push = (minDist - dist) * 0.12;
         a.vx -= dx * push;
@@ -90,7 +90,7 @@ export function tickSimulation(
     const dx = b.x - a.x;
     const dy = b.y - a.y;
     const dist = Math.hypot(dx, dy) || 0.01;
-    const rest = edge.kind === "hierarchy" ? 168 : 190;
+      const rest = edge.kind === "hierarchy" ? 200 : 230;
     const stiffness = edge.kind === "bridge" ? 0.012 : 0.02;
     const f = (dist - rest) * stiffness;
     const nx = dx / dist;
