@@ -5,10 +5,15 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const domainId = searchParams.get("domain");
   const categoryId = searchParams.get("category");
+  const nodeId = searchParams.get("node");
   const limit = Number(searchParams.get("limit") ?? "5");
 
   const graph = await readGraph();
   let questions = [...graph.quizQuestions];
+
+  if (nodeId) {
+    questions = questions.filter((q) => q.nodeId === nodeId);
+  }
 
   if (domainId) {
     const domainNodeIds = new Set(

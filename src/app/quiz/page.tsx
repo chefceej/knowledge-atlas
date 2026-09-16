@@ -3,9 +3,13 @@ import { QuizSession } from "@/components/quiz-session";
 import Link from "next/link";
 import { readGraph } from "@/lib/store";
 
-async function getQuizQuestions(domainId?: string, limit = 5) {
+async function getQuizQuestions(domainId?: string, nodeId?: string, limit = 5) {
   const graph = await readGraph();
   let questions = [...graph.quizQuestions];
+
+  if (nodeId) {
+    questions = questions.filter((q) => q.nodeId === nodeId);
+  }
 
   if (domainId) {
     const domainNodeIds = new Set(
@@ -29,11 +33,12 @@ async function getQuizQuestions(domainId?: string, limit = 5) {
 export default async function QuizPage({
   searchParams,
 }: {
-  searchParams: Promise<{ domain?: string }>;
+  searchParams: Promise<{ domain?: string; node?: string }>;
 }) {
   const params = await searchParams;
   const domainId = params.domain;
-  const initialQuestions = await getQuizQuestions(domainId);
+  const nodeId = params.node;
+  const initialQuestions = await getQuizQuestions(domainId, nodeId);
 
   const filters = [
     { label: "All domains", href: "/quiz", active: !domainId },
@@ -72,8 +77,9 @@ export default async function QuizPage({
       </div>
 
       <QuizSession
-        key={domainId ?? "all"}
+        key={`${domainId ?? "all"}-${nodeId ?? "any"}`}
         domainId={domainId}
+        nodeId={nodeId}
         initialQuestions={initialQuestions}
         questionCount={5}
       />

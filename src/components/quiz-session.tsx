@@ -19,6 +19,7 @@ interface QuizQuestionWithNode {
 interface QuizSessionProps {
   domainId?: string;
   categoryId?: string;
+  nodeId?: string;
   questionCount?: number;
   initialQuestions: QuizQuestionWithNode[];
 }
@@ -26,6 +27,7 @@ interface QuizSessionProps {
 export function QuizSession({
   domainId,
   categoryId,
+  nodeId,
   questionCount = 5,
   initialQuestions,
 }: QuizSessionProps) {
@@ -45,6 +47,7 @@ export function QuizSession({
       const params = new URLSearchParams({ limit: String(questionCount) });
       if (domainId) params.set("domain", domainId);
       if (categoryId) params.set("category", categoryId);
+      if (nodeId) params.set("node", nodeId);
 
       const res = await fetch(`/api/quiz?${params}`);
       if (!res.ok) throw new Error("Failed to load quiz");
@@ -60,7 +63,7 @@ export function QuizSession({
     } finally {
       setLoading(false);
     }
-  }, [domainId, categoryId, questionCount]);
+  }, [domainId, categoryId, nodeId, questionCount]);
 
   const current = questions[index];
 
