@@ -25,6 +25,8 @@ export interface KnowledgeNode {
   mastery: MasteryLevel;
   notes: string[];
   linkedNodeIds: string[];
+  /** When set, this topic lives inside another topic instead of at category level. */
+  parentId?: string;
 }
 
 export interface LearningEntry {

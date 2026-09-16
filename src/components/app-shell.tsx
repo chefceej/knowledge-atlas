@@ -19,11 +19,17 @@ const navItems = [
   { href: "/gaps", label: "Gaps", icon: Compass },
 ];
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  variant = "page",
+}: {
+  children: React.ReactNode;
+  variant?: "page" | "canvas";
+}) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-full bg-[#0a0a0f] text-zinc-100">
+    <div className="flex h-full min-h-full flex-col bg-[#07070c] text-zinc-100">
       <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-[#0a0a0f]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5">
@@ -32,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <div>
               <p className="text-sm font-semibold tracking-tight">Knowledge Atlas</p>
-              <p className="text-[11px] text-zinc-500">Goodreads × Trivia × Skill Tree</p>
+              <p className="text-[11px] text-zinc-500">Personal knowledge web</p>
             </div>
           </Link>
 
@@ -85,7 +91,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</main>
+      <main
+        className={
+          variant === "canvas"
+            ? "flex min-h-0 flex-1 flex-col overflow-hidden"
+            : "mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8"
+        }
+      >
+        {children}
+      </main>
     </div>
   );
 }

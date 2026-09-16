@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { seedGraph } from "./seed-data";
 import type {
+  Category,
   DomainStats,
   GapInsight,
   KnowledgeGraph,
@@ -209,6 +210,80 @@ export async function applyQuizResult(
     node.mastery = Math.max(0, node.mastery - 1) as MasteryLevel;
   }
 
+  await writeGraph(graph);
+  return node;
+}
+
+function slugify(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+  return `${base || "node"}-${Date.now().toString(36)}`;
+}
+
+export async function createCategory(input: {
+  name: string;
+  description: string;
+  domainId: string;
+  parentCategoryId?: string;
+}): Promise<Category> {
+  const graph = await readGraph();
+  const domain = graph.domains.find((d) => d.id === input.domainId);
+  if (!domain) {
+    throw new Error("Domain not found");
+  }
+
+  const category: Category = {
+    id: slugify(input.name),
+    domainId: input.domainId,
+    name: input.name.trim(),
+    description: input.description.trim(),
+    parentCategoryId: input.parentCategoryId,
+  };
+  graph.categories.push(category);
+  await writeGraph(graph);
+  return category;
+}
+
+export async function createNode(input: {
+  name: string;
+  description: string;
+  domainId: string;
+  categoryId: string;
+  parentId?: string;
+}): Promise<KnowledgeNode> {
+  const graph = await readGraph();
+  const domain = graph.domains.find((d) => d.id === input.domainId);
+  const category = graph.categories.find((c) => c.id === input.categoryId);
+  if (!domain || !category) {
+    throw new Error("Domain or category not found");
+  }
+  if (input.parentId && !graph.nodes.some((n) => n.id === input.parentId)) {
+    throw new Error("Parent node not found");
+  }
+
+  const node: KnowledgeNode = {
+    id: slugify(input.name),
+    domainId: input.domainId,
+    categoryId: input.categoryId,
+    name: input.name.trim(),
+    description: input.description.trim(),
+    mastery: 0,
+    notes: [],
+    linkedNodeIds: input.parentId ? [input.parentId] : [],
+    parentId: input.parentId,
+  };
+
+  if (input.parentId) {
+    const parent = graph.nodes.find((n) => n.id === input.parentId);
+    if (parent && !parent.linkedNodeIds.includes(node.id)) {
+      parent.linkedNodeIds.push(node.id);
+    }
+  }
+
+  graph.nodes.push(node);
   await writeGraph(graph);
   return node;
 }

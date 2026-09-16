@@ -128,3 +128,12 @@
     @apply font-sans;
   }
 }
+
+.knowledge-web {
+  background-color: #07070c;
+  background-image:
+    radial-gradient(ellipse at 50% 18%, rgba(52, 211, 153, 0.1), transparent 52%),
+    radial-gradient(ellipse at 82% 86%, rgba(245, 158, 11, 0.08), transparent 44%),
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.045) 1px, transparent 0);
+  background-size: auto, auto, 32px 32px;
+}

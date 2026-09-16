@@ -1,17 +1,17 @@
 # Knowledge Atlas
 
-**Goodreads × Trivia × RPG Skill Tree** — a personal knowledge graph for tracking what you know across domains.
+A personal **knowledge web**: click into any node, see what lives inside it, and subdivide topics as your map gets more detailed.
 
-Watch a documentary, read about semiconductors, or dive into presidential history. Log what you learned, watch knowledge blocks light up from gray to green, quiz yourself to validate recall, and discover gaps in your mental map.
+Watch a documentary, read about semiconductors, or dive into presidential history. Log what you learned, watch nodes light up from gray to green, quiz yourself to validate recall, and discover gaps in your mental map.
 
-## Features (v1)
+## Features
 
-- **Two domains**: History and Hard Sciences, each with categories and knowledge blocks
-- **Skill tree UI**: Blocks progress through 6 mastery levels (Unexplored → Mastered)
-- **Learning capture**: Log what you learned and tag the blocks it touched (+1 mastery each)
-- **Cross-domain links**: e.g. Manhattan Project bridges WWII history and 20th-century physics
-- **Gap analysis**: Surfaces unexplored blocks, uneven coverage, and incomplete bridges
-- **Quizzing**: Multiple-choice questions that bump mastery on correct answers
+- **Click-into graph**: Atlas → domain → category → topic → nested children
+- **Subdivide any node**: grow the web instead of keeping a flat list of cards
+- **Mastery glow**: topics progress through 6 levels (Unexplored → Mastered)
+- **Learning capture**: log what you learned and tag the nodes it touched
+- **Cross-domain bridges**: e.g. Manhattan Project sits between WWII history and physics
+- **Gap analysis** and **quizzing** still live in the header
 
 ## Getting started
 
@@ -22,6 +22,10 @@ npm run dev -- -p 43123
 
 Open [http://localhost:43123](http://localhost:43123).
 
+- Double-click a node (or use **Click into this node**) to enter it
+- **Subdivide** adds a child inside the current node
+- Drag to pan, scroll to zoom, Escape to step out
+
 Data persists in `data/knowledge-graph.json` (auto-seeded on first run).
 
 ## Project structure
@@ -29,20 +33,11 @@ Data persists in `data/knowledge-graph.json` (auto-seeded on first run).
 ```
 src/
   app/           # Pages and API routes
-  components/    # UI components
-  lib/           # Types, store, seed data, mastery helpers
+  components/    # Graph explorer, capture, quiz, UI
+  lib/           # Types, store, seed data, graph slicing
 data/
   knowledge-graph.json   # Your personal graph (gitignored by default)
 ```
-
-## Roadmap ideas
-
-- AI-assisted learning capture (describe a documentary → auto-suggest blocks)
-- Conversational expansion ("tell me more about substrates")
-- Spaced repetition scheduling for quizzes
-- Custom domains and user-created nodes
-- Graph visualization (force-directed view)
-- Export / import your atlas
 
 ## Tech stack
 
